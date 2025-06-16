@@ -14,6 +14,8 @@ using pp::Mat;
 
 void MakeMirrorBorder(Mat& img, std::size_t borderSize);
 
+void InitImg(Mat& src);
+
 template<class Processor>
 void DoFilter(pp::Mat& src, pp::Mat& dst, Processor proc) {
     const std::size_t kernelSize = proc.kernelSize;
@@ -21,7 +23,7 @@ void DoFilter(pp::Mat& src, pp::Mat& dst, Processor proc) {
 
     // std::size_t rowStart = (threadId != 0)? 
 
-    #pragma omp for
+    #pragma omp for schedule(static, 64)
     for (std::size_t row = 0; row < src.rows - kernelSize + 1; ++row) {
         for (std::size_t col = 0; col < src.cols - kernelSize + 1; ++col) {
             pp::Rect rect(col, row, kernelSize, kernelSize);
@@ -42,8 +44,8 @@ double wtime()
 }
 
 int main() {
-    const std::size_t kRows = 1500;//1080;
-    const std::size_t kColls = 1500;//2048;
+    const std::size_t kRows = 5000;//1080;
+    const std::size_t kColls = 5000;//2048;
     const std::size_t kBorderSize = 3;
 
     // const int N = 1;
@@ -59,12 +61,13 @@ int main() {
 
 
     {
-        t = wtime();
         pp::Mat img1(kRows, kColls);
-        pp::InitImg(img1);
         img1 = img1.CopyWithBorder(kBorderSize);
         pp::Mat img2(img1.rows, img1.cols, img1.borderSize);
         
+        t = wtime();
+    
+        pp::InitImg(img1);
         pp::Mat* img = &img1;
         pp::Mat* imgNew = &img2;
 
@@ -94,7 +97,6 @@ int main() {
     
 
     pp::Mat img1(kRows, kColls);
-    pp::InitImg(img1);
     img1 = img1.CopyWithBorder(kBorderSize);
     pp::Mat img2(img1.rows, img1.cols, img1.borderSize);
 
@@ -106,29 +108,26 @@ int main() {
         {
             t = wtime();
         }
-        
 
+        ::InitImg(img1);
         pp::Mat* img = &img1;
         pp::Mat* imgNew = &img2;
 
-        // MakeMirrorBorder(*img, kBorderSize);  
-        #pragma omp single
-        img->MakeMirrorBorder(kBorderSize);  
+        MakeMirrorBorder(*img, kBorderSize); 
         ::DoFilter(*img, *imgNew, pp::MedianFilterProc(7));
         std::swap(img, imgNew); 
         
-        #pragma omp single
-        img->MakeMirrorBorder(kBorderSize);  
+
+        MakeMirrorBorder(*img, kBorderSize); 
         ::DoFilter(*img, *imgNew, pp::MeanFilterProc(7));
         std::swap(img, imgNew);
 
-        #pragma omp single
-        img->MakeMirrorBorder(kBorderSize);  
+        MakeMirrorBorder(*img, kBorderSize); 
         ::DoFilter(*img, *imgNew, pp::SobelFilterProc());
         std::swap(img, imgNew);
 
-        #pragma omp single
-        img->MakeMirrorBorder(kBorderSize);  
+
+        MakeMirrorBorder(*img, kBorderSize); 
         ::DoFilter(*img, *imgNew, pp::ThresholdFilterProc(77));
         std::swap(img, imgNew);
 
@@ -149,6 +148,22 @@ int main() {
 
 
     return 0;
+}
+
+void InitImg(Mat& src) {
+    #pragma omp for schedule(static, 64)
+    for (std::size_t row = src.borderSize; row < src.rows - src.borderSize; ++row) {
+        for (std::size_t col = src.borderSize; col < src.cols - src.borderSize; ++col) {
+            std::mt19937 rng;
+        std::uniform_int_distribution<uint8_t> dist(0, 255);
+            rng.seed(653 + row * src.cols + col);
+            
+            auto pixel = src.GetPixel(row, col);
+            pixel.r() = dist(rng);
+            pixel.g() = dist(rng);
+            pixel.b() = dist(rng);
+        }
+    }
 }
 
 void MakeMirrorBorder(Mat& img, std::size_t borderSize) {

@@ -22,8 +22,6 @@ file(CREATE_LINK
 
 file(COPY "${CMAKE_SOURCE_DIR}/resources" DESTINATION "${CMAKE_BINARY_DIR}/bin")
 
-add_compile_options(-pg)
-
 # enable_testing()
 add_subdirectory(external)
 

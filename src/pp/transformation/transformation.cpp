@@ -163,11 +163,11 @@ void SegmentationFilterProc::ProcMaxGradient(ROI& roi, PixelRGBRef& dst) {
 }
 
 void InitImg(Mat& src) {
-    std::mt19937 rng;  // сид зависит от индексов
+    std::mt19937 rng;
     std::uniform_int_distribution<uint8_t> dist(0, 255);
 
-    for (std::size_t row = 0; row < src.rows; ++row) {
-        for (std::size_t col = 0; col < src.cols; ++col) {
+    for (std::size_t row = src.borderSize; row < (src.rows - src.borderSize); ++row) {
+        for (std::size_t col = src.borderSize; col < (src.cols - src.borderSize); ++col) {
             rng.seed(653 + row * src.cols + col);
             
             auto pixel = src.GetPixel(row, col);
