@@ -1,0 +1,11 @@
+{
+  "num_threads": 6,
+  "in": "resources/big.png",
+  "out": "test.png",
+  "filters": [
+    {
+      "type": "Mean",
+      "kernel_size": 7
+    }
+  ]
+}

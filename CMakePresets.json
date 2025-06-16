@@ -1,0 +1,64 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 22,
+        "patch": 0
+      },
+      "configurePresets": [
+        {
+            "name": "base",
+            "generator": "Unix Makefiles",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER" : "g++"
+            }
+        },      
+        {
+            "name": "debug",
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/build/debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "TESTING": "ON",
+                "COVERAGE": "ON",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "release",
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/build/release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "TESTING": "ON",
+                "COVERAGE": "OFF"
+            }
+        }
+      ],
+      "testPresets": [
+        {
+          "name": "debug",
+          "configurePreset": "debug", 
+          "output": {"outputOnFailure": true},
+          "execution": {"noTestsAction": "error", "stopOnFailure": true}
+        },
+        {
+          "name": "release",
+          "configurePreset": "release", 
+          "output": {"outputOnFailure": true},
+          "execution": {"noTestsAction": "error", "stopOnFailure": true}
+        }
+      ],
+      "buildPresets": [
+        {
+          "name": "release",
+          "configurePreset": "release"
+        },
+        {
+          "name": "debug",
+          "configurePreset": "debug"
+        }
+      ]
+}
+
