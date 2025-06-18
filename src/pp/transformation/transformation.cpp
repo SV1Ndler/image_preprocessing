@@ -171,9 +171,9 @@ void InitImg(Mat& src) {
             rng.seed(653 + row * src.cols + col);
             
             auto pixel = src.GetPixel(row, col);
-            pixel.r() = dist(rng);
-            pixel.g() = dist(rng);
-            pixel.b() = dist(rng);
+            pixel.r() = (653 + row * src.cols + col) % 256;
+            pixel.g() = (1754 + row * src.cols + col) % 256;
+            pixel.b() = (1999 + row * src.cols + col) % 256;
         }
     }
 }

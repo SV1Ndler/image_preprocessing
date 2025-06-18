@@ -84,7 +84,7 @@ int main() {
         std::swap(img, imgNew);
 
         img->MakeMirrorBorder(kBorderSize);
-        pp::DoFilter(*img, *imgNew, pp::ThresholdFilterProc(77));
+        pp::DoFilter(*img, *imgNew, pp::ThresholdFilterProc(20));
         std::swap(img, imgNew);
 
        
@@ -128,7 +128,7 @@ int main() {
 
 
         MakeMirrorBorder(*img, kBorderSize); 
-        ::DoFilter(*img, *imgNew, pp::ThresholdFilterProc(77));
+        ::DoFilter(*img, *imgNew, pp::ThresholdFilterProc(20));
         std::swap(img, imgNew);
 
         
@@ -154,14 +154,10 @@ void InitImg(Mat& src) {
     #pragma omp for schedule(static, 64)
     for (std::size_t row = src.borderSize; row < src.rows - src.borderSize; ++row) {
         for (std::size_t col = src.borderSize; col < src.cols - src.borderSize; ++col) {
-            std::mt19937 rng;
-        std::uniform_int_distribution<uint8_t> dist(0, 255);
-            rng.seed(653 + row * src.cols + col);
-            
             auto pixel = src.GetPixel(row, col);
-            pixel.r() = dist(rng);
-            pixel.g() = dist(rng);
-            pixel.b() = dist(rng);
+            pixel.r() = (653 + row * src.cols + col) % 256;
+            pixel.g() = (1754 + row * src.cols + col) % 256;
+            pixel.b() = (1999 + row * src.cols + col) % 256;
         }
     }
 }

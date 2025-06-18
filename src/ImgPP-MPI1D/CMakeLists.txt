@@ -9,7 +9,7 @@ find_package(MPI REQUIRED)
 #     message(WARNING "OpenMP not found - building without parallelization")
 # endif()
 
-set(target_name imgpp_mpi)
+set(target_name imgpp_mpi_1d)
 
 add_executable(${target_name})
 
